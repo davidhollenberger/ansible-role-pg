@@ -1,0 +1,14 @@
+#!/bin/bash
+
+{% for key, value in pg_dbs.iteritems() %}
+#
+# Backup {{ value.dbname }}
+#
+#set a couple variables
+export TIMESTAMP=$(date +%Y%m%d%H%M%S)
+export FILE={{ value.dbname }}_$TIMESTAMP.dmp
+
+#backup database
+pg_dump -v -F c -f /var/lib/pgsql/{{ pg_version }}/backups/$FILE {{ value.dbname }}
+
+{% endfor %}

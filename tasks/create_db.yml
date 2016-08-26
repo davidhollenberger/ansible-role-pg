@@ -30,21 +30,21 @@
     group: postgres
     owner: postgres
 
-- name: create backup scripts
+- name: create backup script for all databases
   template:
-    src: daily_pg_dump.j2
-    dest: "/var/lib/pgsql/scripts/daily_bkp_{{ item.value.dbname }}.sh"
+    src: daily_pg_dump_all.j2
+    dest: "/var/lib/pgsql/scripts/daily_bkp_all.sh"
     owner: postgres
     group: postgres
     mode: 0755
-  with_dict: "{{ pg_dbs | default({}) }}"
+  tags: pg_dump
 
-- name: cron backup jobs
+- name: cron backup job
   cron:
-    name: "daily pg_dump for {{ item.value.dbname }}"
-    minute: "{{ item.value.bkp_min }}"
-    hour: "{{ item.value.bkp_hour }}"
-    job: "/var/lib/pgsql/scripts/daily_bkp_{{ item.value.dbname }}.sh"
+    name: "daily pg_dump for all databases"
+    minute: "00"
+    hour: "22"
+    job: "/var/lib/pgsql/scripts/daily_bkp_all.sh"
     user: postgres
   become_user: root
-  with_dict: "{{ pg_dbs | default({}) }}"
+  tags: pg_dump
